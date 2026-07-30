@@ -46,3 +46,37 @@ Pero al final del día, el criterio es el mismo: obtener una manera que distribu
 
 ## Colisiones
 
+Debido a como funcionan la asignación de los índices, puede que uno o varios elementos queden con un mismo índice, eso es una **colisión**, y para solucionar tenemos 2 posibles soluciones:
+
+### Encadenamiento (Chaining)
+
+Esta consiste que en vez de guardar un elemento, se guarda una lista la cual contiene todos los elementos que se les asignó ese índice, esta puede ser una lista normal o una lista enlazada, como se quiera hacer.
+
+Lo malo de este método es que si comienzan a haber varios elementos en ese índice, su complejidad podría pasar de $O(1)$ a $O(k)$, donde $k$ es el largo de la lista.
+
+### Direccionamiento abierto (open chaining)
+
+Todo se guarda como normalmente sería, es decir sin elementos que sean listas, para esto, si un elemento es asignado a una posición la cual ya está ocupada, este se le busca otra posición que no lo esté, esta puede ser la siguiente o hacer doble hashing (dos funciones hash por si la primera dio un índice ocupado).
+
+Está al manejarse asi usa menos memoria, pero tiene la desventaja que la tabla se puede llenar a diferencia del método anterior, que técnicamente puede tener elementos infinitos. Por lo que, en caso de que se llene, esta tiene que crecer más. 
+
+---
+
+### Factor de carga
+
+El factor de carga sirve para saber que tan frecuentes podrían ser las colisiones, esta es:
+
+```
+factor de carga = numero de elementos / tamaño del arreglo
+```
+
+Si el factor de carga crece demasiado, por ejemplo, si es mayor a $0.75$ que es default en algunos lenguajes de programación, entonces las colisiones serán muy frecuentes y el rendimiento decrece.
+
+Para el segundo caso para colisiones, lo que hace generalmente cuando se llena o su factor de carga es muy alto, es duplicar el tamaño de la tabla y mudar todos los elementos a esa tabla, aunque baja el factor de carga "artificialmente", es muy efectivo.
+
+---
+
+## Implementación
+
+### Usando Encadenamiento (Chaining)
+
