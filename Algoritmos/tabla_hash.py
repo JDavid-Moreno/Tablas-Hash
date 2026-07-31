@@ -1,8 +1,8 @@
 class HashTable:
-    def __init__(self, capacity = 10):
-            self.capacity = capacity
+    def __init__(self):
+            self.capacity = 10
             self.size = 0
-            self.buckets = [[] for _ in range(capacity)]
+            self.boards = [[] for _ in range(self.capacity)]
 
     def hash(self, key):
         sum = 0
@@ -12,12 +12,12 @@ class HashTable:
 
     def insert(self, key, value):
         index = self.hash(key)
-        bucket = self.buckets[index]
-        for i, (k, v) in enumerate(bucket):
+        board = self.boards[index]
+        for i, (k, v) in enumerate(board):
             if k == key:
-                bucket[i] = (key, value)
+                board[i] = (key, value)
                 return
-        bucket.append((key, value))
+        board.append((key, value))
         self.size += 1
 
         if self.size / self.capacity > 0.75:
@@ -25,9 +25,9 @@ class HashTable:
 
     def search(self, key):
         index = self.hash(key)
-        bucket = self.buckets[index]
+        board = self.boards[index]
 
-        for k, v in bucket:
+        for k, v in board:
             if k == key:
                 return v
 
@@ -35,39 +35,46 @@ class HashTable:
 
     def delete(self, key):
         index = self.hash(key)
-        bucket = self.buckets[index]
+        board = self.boards[index]
 
-        for i, (k, v) in enumerate(bucket):
+        for i, (k, v) in enumerate(board):
             if k == key:
-                bucket.pop(i)
+                board.pop(i)
                 self.size -= 1
                 return
         return f"Clave {key} no encontrada"
 
     def resize(self):
-        old_buckets = self.buckets
+        old_boards = self.boards
         self.capacity *= 2
-        self.buckets = [[] for _ in range(self.capacity)]
+        self.boards = [[] for _ in range(self.capacity)]
         self.size = 0
 
-        for bucket in old_buckets:
-            for key, value in bucket:
+        for board in old_boards:
+            for key, value in board:
                 self.insert(key, value)
 
     def __repr__(self):
         result = []
-        for b in self.buckets:
+        for b in self.boards:
             if b:
                 result.append(b)
         return str(result)
+
+    def view(self):
+        board = self.boards
+        for i in board:
+            print(i, end=" ")
 
 def main():
     board = HashTable()
     board.insert("Ana", 25)
     board.insert("Leo", 30)
     board.insert("Nao", 28)
+    board.insert("Zoe", 30)
 
-    print(board.search("Ana"))  # 25
+    print(board.search("Ana"))
     board.delete("Leo")
     print(board)
+    board.view()
 main()

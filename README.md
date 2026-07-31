@@ -80,3 +80,130 @@ Para el segundo caso para colisiones, lo que hace generalmente cuando se llena o
 
 ### Usando Encadenamiento (Chaining)
 
+Para crear la tabla hash, usaremos una clase:
+
+```
+class HashTable:
+    def __init__(self):
+            self.capacity = 10
+            self.size = 0
+            self.boards = [[] for _ in range(self.capacity)]
+```
+
+Aquí como es una tabla, la capacidad o su tamaño ya está definido, en este caso elegimos 10, asi mismo, creamos otras dos variables, una para la cantidad de datos que contiene la tabla (nos ayudara con el factor de carga) que empieza en 0 y otra para crear la tabla como tal, que para este caso será una lista con listas adentro.
+
+> [!NOTE]
+> **Nota:** No se usó un diccionario, ya que técnicamente un diccionario es una tabla hash en sí, entonces estaríamos creando una tabla hash en una tabla hash, lo cual no tiene sentido, aquí creamos la tabla hash
+
+#### Función Hash
+
+Para la función hash, usaremos algo llamado **Polynomial rolling**, este es un algoritmo para convertir texto en un número de forma rápida. Usa potencias de un número primo y operaciones de módulo para comparar cadenas de caracteres en tiempo constante.
+
+```
+    def hash(self, key):
+        sum = 0
+        for i, char in enumerate(str(key)):
+            sum += ord(char) * (31 ** i)
+        return sum % self.capacity
+```
+
+Para este caso, primero volvemos cada letra en su valor ASCII, después cada valor lo multiplicamos por 31 (número primo) elevado a la posicion de la letra. Ejemplo, si tengo "Juan"
+
+$ASCII(J) * 31⁰$
+
+$ASCII(u) * 31¹$
+
+$ASCII(a) * 31²$
+
+$ASCII(n) * 31³$
+
+Usamos la función `ord()` que es la que vuelve las letras en valores, y la suma de todos le sacamos él `%`, y ese valor será su índice.
+
+#### Insertar
+
+```
+    def insert(self, key, value):
+        index = self.hash(key)
+        board = self.boards[index]
+        for i, (k, v) in enumerate(board):
+            if k == key:
+                board[i] = (key, value)
+                return
+        board.append((key, value))
+        self.size += 1
+
+        if self.size / self.capacity > 0.75:
+            self.resize()
+```
+
+Aquí primero le asignamos su índice, después recorremos la lista hasta llegar a su índice (recordemos que la tabla ya está llena, es decir, si tengo una tabla de tamaño 4, esta es `[[], [], [], []]`), una vez en su índice, la agregamos a la lista de ese índice, sin importar si hay otro elemento en ese índice.
+
+### Buscar
+
+```
+    def search(self, key):
+        index = self.hash(key)
+        board = self.boards[index]
+
+        for k, v in board:
+            if k == key:
+                return v
+
+        return f"Clave {key} no encontrada"
+```
+
+Es muy parecido al anterior. Donde de igual manera, toca recorrer la lista, hasta encontrar la clave, en caso de que no, envia un mensaje de que no se encontró o no existe.
+
+#### Eliminar
+
+```
+    def delete(self, key):
+        index = self.hash(key)
+        board = self.boards[index]
+
+        for i, (k, v) in enumerate(board):
+            if k == key:
+                board.pop(i)
+                self.size -= 1
+                return
+        return f"Clave {key} no encontrada"
+```
+
+Lo mismo que el anterior, recorre la tabla buscando el elemento para eliminarlo, asi mismo, decrece la cantidad de elementos para que no existan "elementos fantasma", esto para que el factor de carga no haga extender el tamaño de la tabla, y si no encuentra la clave devuelve un mensaje de que no se encontró.
+
+#### Actualizar tamaño
+
+```
+    def resize(self):
+        old_boards = self.boards
+        self.capacity *= 2
+        self.boards = [[] for _ in range(self.capacity)]
+        self.size = 0
+
+        for board in old_boards:
+            for key, value in board:
+                self.insert(key, value)
+```
+
+Generalmente, cuando se extiende una tabla, se duplica su tamaño, por lo que hacemos eso y como creamos una tabla nueva, tenemos que "mudar" todos los elementos a esa nueva tabla recalculando nuevamente sus índices, ya que al ser más grande, su cálculo dara distinto.
+
+#### Visualizar la tabla
+
+```
+    def __repr__(self):
+        result = []
+        for b in self.boards:
+            if b:
+                result.append(b)
+        return str(result)
+
+    def view(self):
+        board = self.boards
+        for i in board:
+            print(i, end=" ")
+```
+
+Existen 2 maneras, la primera es solo mostrando los índices que tienen elementos, esto se hace si la tabla crece mucho. Y la otra es imprimiendo la tabla como normalmente sería mostrando todos sus índices aunque estén vacíos.
+
+### Usando Direccionamiento abierto (open chaining)
+
