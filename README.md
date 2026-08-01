@@ -319,3 +319,10 @@ Misma idea que el ejemplo anterior, si la tala se llena, se duplica su tamaño y
 
 ## Material adicional
 
+[![Tabla hash](https://img.youtube.com/vi/CrXDTPE4DQI/0.jpg)](https://www.youtube.com/watch?v=CrXDTPE4DQI&t=441s)
+
+[![Tabla hash](https://img.youtube.com/vi/dNWwkL38rd0/0.jpg)](https://www.youtube.com/watch?v=dNWwkL38rd0)
+
+[![tabla hash](https://img.youtube.com/vi/9tZsDJ3JBUA/0.jpg)](https://www.youtube.com/watch?v=9tZsDJ3JBUA)
+
+[![Tabla Hash](https://img.youtube.com/vi/LluB6jU-SwY/0.jpg)](https://www.youtube.com/watch?v=LluB6jU-SwY)
