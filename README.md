@@ -54,7 +54,7 @@ Esta consiste que en vez de guardar un elemento, se guarda una lista la cual con
 
 Lo malo de este método es que si comienzan a haber varios elementos en ese índice, su complejidad podría pasar de $O(1)$ a $O(k)$, donde $k$ es el largo de la lista.
 
-### Direccionamiento abierto (open chaining)
+### Direccionamiento abierto (open addressing)
 
 Todo se guarda como normalmente sería, es decir sin elementos que sean listas, para esto, si un elemento es asignado a una posición la cual ya está ocupada, este se le busca otra posición que no lo esté, esta puede ser la siguiente o hacer doble hashing (dos funciones hash por si la primera dio un índice ocupado).
 
@@ -205,5 +205,117 @@ Generalmente, cuando se extiende una tabla, se duplica su tamaño, por lo que ha
 
 Existen 2 maneras, la primera es solo mostrando los índices que tienen elementos, esto se hace si la tabla crece mucho. Y la otra es imprimiendo la tabla como normalmente sería mostrando todos sus índices aunque estén vacíos.
 
-### Usando Direccionamiento abierto (open chaining)
+### Usando Direccionamiento abierto (open addressing)
+
+En este caso, tendremos una diferencia, y es que como aquí los elementos se van moviendo de índice en caso de que él se les asignó este ocupado, tendremos que usar otra variable.
+
+```
+class HashTable:
+    def __init__(self):
+        self.capacity = 10
+        self.size = 0
+        self.slots = [None] * self.capacity
+        self.deleted = object()
+```
+
+aquí `capacity` y `size` se mantienen igual, por otro como es una tabla (tamaño definido) se rellena con `None` para definir su tamaño.
+
+Por otro lado, `deleted` será la nueva variable que nos ayudara para evitar inconsistencias para buscar elementos, aquí `None` hace el trabajo de decir "en este índice jamás ha habido un valor", mientras que `deleted` es más como decir, aquí hubo algún elemento, esto se hace para que por ejemplo:
+
+Juan cayó en el índice 3 y ana también, por lo que ana se va para el índice 4, por lo que en caso de que Juan sea eliminado, al buscar Ana y que nos dé índice 3, salga `deleted` de que puede que esté borrada o que este más adelante en la lista (la recorra), por otro lado, si buscamos y nos da `None`, significa que la clave jamás ha existido y para la búsqueda.
+
+La función hash la mantendremos igual que la anterior por lo que queda exactamente igual.
+
+#### Insertar
+
+```
+    def insert(self, key, value):
+        if self.size / self.capacity >= 0.7:
+            self.resize()
+
+        index = self.hash(key)
+        first_deleted = None
+        for i in range(self.capacity):
+            position = (index + i) % self.capacity
+            slot = self.slots[position]
+
+            if slot is None:
+                goal = first_deleted if first_deleted is not None else position
+                self.slots[goal] = [key, value]
+                self.size += 1
+                return
+            if slot is self.deleted:
+                if first_deleted is None:
+                    first_deleted = position
+                continue
+            if slot[0] == key:
+                slot[1] = value
+                return
+
+        return f"Tabla llena"
+```
+
+Para este caso, como no tenemos listas, sino que usamos todos los índices, tendremos que estar más pendientes del factor de carga, de igual manera le calculamos su índice, en caso de que este ocupado, vamos avanzando de manera lineal (si su índice es el 4, vamos al 5, si está ocupado al 6 y asi), él `% self.capacity` es para que en caso de que lleguemos al final se reinicie al primer índice, esto para que revise todos los índices que existen.
+
+Si encontramos `None`, significa que puede insertar en ese índice sin problema, pero en caso de que en el camino paso por un `deleted`, se devuelve a ese índice.
+
+#### Buscar / obtener
+
+```
+    def get(self, key):
+        index = self.hash(key)
+        for i in range(self.capacity):
+            position = (index + i) % self.capacity
+            slot = self.slots[position]
+
+            if slot is None:
+                return None
+            if slot is not self.deleted and slot[0] == key:
+                return slot[1]
+
+        return None
+```
+
+Esta es muy parecida al del ejemplo anterior, se da el índice y se recorre buscando si está en dicho índice o si esta más adelante.
+
+#### Eliminar
+
+```
+    def remove(self, key):
+        index = self.hash(key)
+        for i in range(self.capacity):
+            position = (index + i) % self.capacity
+            slot = self.slots[position]
+
+            if slot is None:
+                return False
+            if slot is not self.deleted and slot[0] == key:
+                self.slots[position] = self.deleted
+                self.size -= 1
+                return True
+
+        return False
+```
+
+Usa la misma idea que buscar, pero baja la cantidad de elementos para que no se incremente el tamaño de la tabla sin sentido.
+
+#### Actualizar tamaño
+
+```
+    def resize(self):
+        old_slots = self.slots
+        self.capacity  *= 2
+        self.slots = [None] * self.capacity
+        self.size = 0
+
+        for slot in old_slots:
+            if slot is not None and slot is not self.deleted:
+                self.insert(slot[0], slot[1])
+```
+
+Misma idea que el ejemplo anterior, si la tala se llena, se duplica su tamaño y se mudan todos los elementos de la antigua a la nueva con sus nuevos índices.
+
+---
+
+## Material adicional
 
